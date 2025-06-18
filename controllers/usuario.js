@@ -24,14 +24,14 @@ const registrarUsuario = async (req, res) => {
         })
         res.status(201).send({ mensagem: 'Usuario foi criado' })
     } catch (erroDisparado) {
-        res.status(500).send({ mensagem: 'Ocorreu um erro inesperado' })
+        res.status(500).send({ mensagem: 'Ocorreu um erro inesperado',erroDisparado })
     }
 }
 
 const editarUsuario = async (req, res) => {
   try {
     const { id } = req.params
-    const { nome, telefone, email } = req.body
+    const {  telefone, email } = req.body
     const id_usuario = req.id_usuario
     const tipo_usuario = req.tipo_usuario
 
@@ -44,7 +44,7 @@ const editarUsuario = async (req, res) => {
       return res.status(404).send({ mensagem: 'Usuário não encontrado' })
     }
 
-    if (nome) usuario.nome = nome
+  
     if (telefone) usuario.telefone = telefone
     if (email) usuario.email = email
 

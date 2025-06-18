@@ -68,4 +68,45 @@ const listarAcessos = async (req, res) => {
   }
 }
 
-export { registrarAcesso, listarAcessos }
+const contagemDeVagas = async (req, res) => {
+  try {
+    const capacidadeMaxima = 10
+    const totalEntradas = await Acesso.count({ where: { tipo: 'entrada' } })
+    const totalSaidas = await Acesso.count({ where: { tipo: 'saida' } })
+    const ocupacaoAtual = totalEntradas - totalSaidas
+    const vagasDisponiveis = capacidadeMaxima - ocupacaoAtual
+
+    return res.status(200).send({
+      capacidadeMaxima,
+      ocupacaoAtual,
+      vagasDisponiveis
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send({ mensagem: 'Erro ao obter informações das vagas' })
+  }
+}
+const relatorioAcessos = async (req, res) => {
+  try {
+    const acessos = await Acesso.findAll({
+      include: [
+        {
+          association: 'usuario', // Certifique-se que esteja associado com esse alias
+          attributes: ['nome', 'tipo']
+        },
+        {
+          association: 'veiculo',
+          attributes: ['placa', 'modelo']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    })
+
+    return res.status(200).send(acessos)
+  } catch (error) {
+    console.error(error)
+    res.status(500).send({ mensagem: 'Erro ao gerar relatório de acessos' })
+  }
+}
+
+export { registrarAcesso, listarAcessos, contagemDeVagas, relatorioAcessos }
