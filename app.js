@@ -5,9 +5,8 @@ import { router } from './rotas/usuario.js'
 import { routerVeiculos  } from './rotas/veiculos.js'
 import { database } from './database.js'
 import { routerAcesso } from './rotas/acesso.js'
-
-
 import { aplicarRelacionamentos } from './models/relacionamentos.js'
+
 aplicarRelacionamentos()
 
 const app = express()

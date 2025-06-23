@@ -91,7 +91,7 @@ const relatorioAcessos = async (req, res) => {
     const acessos = await Acesso.findAll({
       include: [
         {
-          association: 'usuario', // Certifique-se que esteja associado com esse alias
+          association: 'usuario',
           attributes: ['nome', 'tipo']
         },
         {
