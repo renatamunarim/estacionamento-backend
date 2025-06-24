@@ -6,7 +6,7 @@ import {  registrarAcesso, listarAcessos, contagemDeVagas, relatorioAcessos } fr
 
 const router = express.Router()
 
-router.post('/acessos', validarToken, verificarAdmin, registrarAcesso)
+router.post('/acessos-adm', validarToken, verificarAdmin, registrarAcesso)
 router.get('/acessos', validarToken, listarAcessos)
 router.get('/vagas-disponiveis', validarToken, verificarAdmin, contagemDeVagas )
 router.get('/relatorio-acessos', validarToken, verificarAdmin, relatorioAcessos)

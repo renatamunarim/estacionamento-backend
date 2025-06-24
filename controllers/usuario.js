@@ -2,6 +2,18 @@ import { Usuario } from "../models/usuario.js"
 import bcrypt from "bcrypt"
 
 
+const Perfil = async (req, res) => {
+  try {
+    const usuario = await Usuario.findByPk(req.usuarioId, {
+      attributes: ['id', 'nome', 'email', 'cpf', 'telefone', 'tipo']
+    })
+    if (!usuario) return res.status(404).send({ mensagem: 'Usuário não encontrado' })
+    res.status(200).send(usuario)
+  } catch (erro) {
+    res.status(500).send({ mensagem: 'Erro ao buscar perfil' })
+  }
+}
+
 const registrarUsuario = async (req, res) => {
     try {
         const { nome, cpf, telefone, email, senha, tipo } = req.body
@@ -82,4 +94,4 @@ const excluirUsuario = async (req, res) => {
 }
 
 
-export { registrarUsuario, editarUsuario, excluirUsuario }
+export { registrarUsuario, editarUsuario, excluirUsuario, Perfil }

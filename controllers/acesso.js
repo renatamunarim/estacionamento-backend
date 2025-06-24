@@ -1,6 +1,7 @@
 import { Acesso } from '../models/acesso.js'
 import { Veiculo } from '../models/veiculos.js'
 import { Usuario } from '../models/usuario.js'
+import { Op } from "sequelize"
 
 const capacidadeMaxima = 5
 
@@ -88,18 +89,33 @@ const contagemDeVagas = async (req, res) => {
 }
 const relatorioAcessos = async (req, res) => {
   try {
+    const { usuario, placa } = req.query
+
+    const whereVeiculo = {}
+    const whereUsuario = {}
+
+    if (placa) {
+      whereVeiculo.placa = { [Op.iLike]: `%${placa}%` }
+    }
+
+    if (usuario) {
+      whereUsuario.nome = { [Op.iLike]: `%${usuario}%` }
+    }
+
     const acessos = await Acesso.findAll({
       include: [
         {
-          association: 'usuario',
-          attributes: ['nome', 'tipo']
-        },
-        {
           association: 'veiculo',
-          attributes: ['placa', 'modelo']
+          attributes: ['placa'],
+          where: whereVeiculo,
+          include: {
+            association: 'usuario',
+            attributes: ['nome'],
+            where: whereUsuario
+          }
         }
       ],
-      order: [['createdAt', 'DESC']]
+      order: [['horario', 'DESC']]
     })
 
     return res.status(200).send(acessos)
