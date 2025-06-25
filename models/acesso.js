@@ -20,8 +20,13 @@ const Acesso = database.define('Log', {
   }
 })
 
-Acesso.belongsTo(Veiculo, { foreignKey: 'veiculoId' })
-Acesso.belongsTo(Usuario, { foreignKey: 'usuarioId' })
+Acesso.belongsTo(Veiculo, {
+  foreignKey: 'veiculoId'
+})
+
+Acesso.belongsTo(Usuario, {
+  foreignKey: 'usuarioId'
+})
 
 
 export { Acesso }

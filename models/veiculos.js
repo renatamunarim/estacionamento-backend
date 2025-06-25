@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { database } from '../database.js'
+import { Usuario } from './usuario.js'
 
 
 const Veiculo = database.define('Veiculo', {
@@ -25,6 +26,10 @@ const Veiculo = database.define('Veiculo', {
     }
   }
   
+})
+Veiculo.belongsTo(Usuario, {
+  foreignKey: 'id_usuario',
+  as: 'usuario'
 })
 
 export { Veiculo }

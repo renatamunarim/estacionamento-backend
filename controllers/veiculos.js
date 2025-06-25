@@ -1,5 +1,6 @@
 import { Veiculo } from "../models/veiculos.js"
 
+
 const registrarVeiculo = async (req, res) => {
   try {
     const { placa, modelo, cor } = req.body
