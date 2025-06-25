@@ -4,7 +4,7 @@ import bcrypt from "bcrypt"
 
 const Perfil = async (req, res) => {
   try {
-    const usuario = await Usuario.findByPk(req.usuarioId, {
+    const usuario = await Usuario.findByPk(req.id_usuario, {
       attributes: ['id', 'nome', 'email', 'cpf', 'telefone', 'tipo']
     })
     if (!usuario) return res.status(404).send({ mensagem: 'Usuário não encontrado' })

@@ -24,11 +24,7 @@ const Veiculo = database.define('Veiculo', {
       key: 'id'
     }
   }
-
   
 })
-
-
-
 
 export { Veiculo }
