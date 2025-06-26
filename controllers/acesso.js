@@ -3,7 +3,9 @@ import { Veiculo } from '../models/veiculos.js'
 import { Usuario } from '../models/usuario.js'
 import { Op } from "sequelize"
 
-const capacidadeMaxima = 5
+const capacidadeMaxima = 10
+const totalEntradas = await Acesso.count({ where: { tipo: 'entrada' } })
+const totalSaidas = await Acesso.count({ where: { tipo: 'saida' } })
 
 const registrarAcesso = async (req, res) => {
   try {
@@ -35,6 +37,27 @@ const registrarAcesso = async (req, res) => {
     if (!['entrada', 'saida'].includes(tipo)) {
       return res.status(400).send({ mensagem: 'Tipo inválido (use "entrada" ou "saida")' })
     }
+
+    if (tipo === 'entrada') {
+      const ocupacaoAtual = totalEntradas - totalSaidas
+
+      if (ocupacaoAtual >= capacidadeMaxima) {
+        return res.status(403).send({ mensagem: 'Estacionamento lotado. Aguarde vaga.' })
+      }
+
+      const acessosVeiculo = await Acesso.count({
+        where: { veiculoId: veiculo.id }
+      })
+
+      const veiculoJaEstaDentro = acessosVeiculo % 2 === 1
+      if (veiculoJaEstaDentro) {
+        return res.status(403).send({
+          mensagem: 'Este veículo já está no estacionamento. Saia antes de registrar nova entrada.'
+        })
+      }
+    }
+
+
 
     const acesso = await Acesso.create({
       tipo,
@@ -71,16 +94,14 @@ const listarAcessos = async (req, res) => {
 
 const contagemDeVagas = async (req, res) => {
   try {
-    const capacidadeMaxima = 10
-    const totalEntradas = await Acesso.count({ where: { tipo: 'entrada' } })
-    const totalSaidas = await Acesso.count({ where: { tipo: 'saida' } })
+
     const ocupacaoAtual = totalEntradas - totalSaidas
     const vagasDisponiveis = capacidadeMaxima - ocupacaoAtual
 
     return res.status(200).send({
       capacidadeMaxima,
       ocupacaoAtual,
-      vagasDisponiveis
+      vagasDisponiveis,
     })
   } catch (error) {
     console.error(error)

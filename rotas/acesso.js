@@ -8,7 +8,7 @@ const router = express.Router()
 
 router.post('/acessos-adm', validarToken, verificarAdmin, registrarAcesso)
 router.get('/acessos', validarToken, listarAcessos)
-router.get('/vagas-disponiveis', validarToken, verificarAdmin, contagemDeVagas )
+router.get('/vagas-disponiveis', validarToken, contagemDeVagas )
 router.get('/relatorio-acessos', validarToken, verificarAdmin, relatorioAcessos)
 
 export { router as routerAcesso }
