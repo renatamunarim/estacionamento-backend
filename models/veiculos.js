@@ -32,4 +32,5 @@ Veiculo.belongsTo(Usuario, {
   as: 'usuario'
 })
 
+
 export { Veiculo }

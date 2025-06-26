@@ -4,8 +4,6 @@ import { Usuario } from '../models/usuario.js'
 import { Op } from "sequelize"
 
 const capacidadeMaxima = 10
-const totalEntradas = await Acesso.count({ where: { tipo: 'entrada' } })
-const totalSaidas = await Acesso.count({ where: { tipo: 'saida' } })
 
 const registrarAcesso = async (req, res) => {
   try {
@@ -13,8 +11,8 @@ const registrarAcesso = async (req, res) => {
 
     if (!placa || !tipo) {
       return res.status(400).send({ mensagem: 'Placa e tipo são obrigatórios' })
-    }
 
+    }
     const veiculo = await Veiculo.findOne({
       where: { placa },
       include: Usuario
@@ -24,7 +22,16 @@ const registrarAcesso = async (req, res) => {
       return res.status(403).send({ mensagem: 'Veículo não autorizado (placa não cadastrada)' })
     }
 
+    const totalAcessosDoVeiculo = await Acesso.count({
+      where: { veiculoId: veiculo.id }
+    })
+
+    const estaDentro = totalAcessosDoVeiculo % 2 === 1
     if (tipo === 'entrada') {
+      if (estaDentro) {
+        return res.status(403).send({ mensagem: 'Este veículo já está no estacionamento.' })
+      }
+
       const totalEntradas = await Acesso.count({ where: { tipo: 'entrada' } })
       const totalSaidas = await Acesso.count({ where: { tipo: 'saida' } })
       const ocupacaoAtual = totalEntradas - totalSaidas
@@ -34,30 +41,11 @@ const registrarAcesso = async (req, res) => {
       }
     }
 
-    if (!['entrada', 'saida'].includes(tipo)) {
-      return res.status(400).send({ mensagem: 'Tipo inválido (use "entrada" ou "saida")' })
-    }
-
-    if (tipo === 'entrada') {
-      const ocupacaoAtual = totalEntradas - totalSaidas
-
-      if (ocupacaoAtual >= capacidadeMaxima) {
-        return res.status(403).send({ mensagem: 'Estacionamento lotado. Aguarde vaga.' })
-      }
-
-      const acessosVeiculo = await Acesso.count({
-        where: { veiculoId: veiculo.id }
-      })
-
-      const veiculoJaEstaDentro = acessosVeiculo % 2 === 1
-      if (veiculoJaEstaDentro) {
-        return res.status(403).send({
-          mensagem: 'Este veículo já está no estacionamento. Saia antes de registrar nova entrada.'
-        })
+    if (tipo === 'saida') {
+      if (!estaDentro) {
+        return res.status(403).send({ mensagem: 'Este veículo não esta estacionado.' })
       }
     }
-
-
 
     const acesso = await Acesso.create({
       tipo,
@@ -81,7 +69,7 @@ const listarAcessos = async (req, res) => {
 
     const acessos = await Acesso.findAll({
       where: { usuarioId },
-      include: [{ model: Veiculo }],
+      include: [{ model: Veiculo, attributes: ['placa'],}],
       order: [['horario', 'DESC']]
     })
 
@@ -94,7 +82,9 @@ const listarAcessos = async (req, res) => {
 
 const contagemDeVagas = async (req, res) => {
   try {
-
+    const capacidadeMaxima = 10
+    const totalEntradas = await Acesso.count({ where: { tipo: 'entrada' } })
+    const totalSaidas = await Acesso.count({ where: { tipo: 'saida' } })
     const ocupacaoAtual = totalEntradas - totalSaidas
     const vagasDisponiveis = capacidadeMaxima - ocupacaoAtual
 
